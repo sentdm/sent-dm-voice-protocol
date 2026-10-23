@@ -1,7 +1,7 @@
 asyncapi: 3.1.0
 info:
   title: Sent Voice Agents protocol
-  version: 0.1.0
+  version: 0.1.1
   description: |
     The session an AI agent holds with Sent while it is on a phone call: JSON text frames and binary audio
     frames over one WebSocket, with the subprotocol sent.voice.v1. docs/protocol.md has the rules this document
