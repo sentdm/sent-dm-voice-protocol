@@ -7,6 +7,7 @@ import {
   diagnostics,
   frameTypes as frames,
   readJson,
+  retainedFrames,
   root,
   rules,
   schemas,
@@ -50,10 +51,12 @@ describe('the AsyncAPI document', () => {
     );
   });
 
-  test('carries every frame but connection.draining on the connection Sent opens', () => {
+  test('carries every frame but draining and resuming on the connection Sent opens', () => {
+    // Sent opens one connection per session, so there is nothing to drain and no other connection to resume on.
+    const agentOpenedOnly = ['connection.draining', 'session.resume', 'session.resumed'];
     assert.deepEqual(
       names(document.channels().get('agentEndpoint').messages()),
-      [...frames, 'audio'].filter((name) => name !== 'connection.draining').sort(),
+      [...frames, 'audio'].filter((name) => !agentOpenedOnly.includes(name)).sort(),
     );
   });
 
@@ -80,6 +83,33 @@ describe('the AsyncAPI document', () => {
       assert.equal(schema.required.includes('session_id'), session, message.name());
       assert.equal(Boolean(sessionTypes), session, message.name());
     }
+  });
+
+  test('marks the frames that do not count towards received, as Counting frames in docs/protocol.md lists them', () => {
+    const section = read('docs/protocol.md').split('### Counting frames')[1];
+    const listed = (pattern) => {
+      const match = section.match(pattern);
+      assert.ok(match, `Counting frames has no ${pattern}`);
+      return [...match[1].matchAll(/`([a-z.]+)`/g)].map(([, name]) => name).sort();
+    };
+    const messages = Object.keys(rules).sort();
+    const uncounted = messages.filter((name) => !rules[name].counted);
+    const counted = (direction) =>
+      messages.filter(
+        (name) =>
+          rules[name].counted && rules[name].scope === 'session' && rules[name].direction === direction,
+      );
+
+    // Binary audio is the one message the list leaves out, because it is not JSON.
+    assert.deepEqual(uncounted, [...listed(/marks `x-sent-counted: false`: (.+?)\.\s/s), 'audio'].sort());
+    assert.deepEqual(counted('sent'), listed(/Sent's counted frames are (.+?), and the agent's/s));
+    assert.deepEqual(counted('agent'), listed(/and the agent's are (.+?)\.\s/s));
+  });
+
+  test('gives the frames each side keeps for a resume, as Limits in docs/protocol.md does', () => {
+    assert.ok(Number.isInteger(retainedFrames) && retainedFrames > 0, `${retainedFrames}`);
+    const limits = read('docs/protocol.md').split('## Limits')[1].split('\n## ')[0];
+    assert.match(limits, new RegExp(`keeps the last ${retainedFrames} frames it counted`));
   });
 
   test('has the version of the package, as do the README and docs/protocol.md', () => {

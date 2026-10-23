@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.sent.dm/voice/v1/frames/session.resumed.json",
+  "title": "session.resumed",
+  "description": "The session is on this connection now. Sent's frames the agent did not read follow, in order.",
+  "type": "object",
+  "required": ["type", "session_id", "received"],
+  "properties": {
+    "type": {
+      "const": "session.resumed"
+    },
+    "session_id": {
+      "$ref": "../common.json#/definitions/sessionId"
+    },
+    "received": {
+      "$ref": "../common.json#/definitions/frameCount"
+    },
+    "resume": {
+      "$ref": "../common.json#/definitions/resume"
+    },
+    "audio": {
+      "type": "object",
+      "description": "Present on an audio session that is still live: its stream on this connection, which can differ from the one before. Its sample rate does not change.",
+      "required": ["stream"],
+      "properties": {
+        "stream": {
+          "$ref": "../common.json#/definitions/audioStream"
+        }
+      }
+    }
+  }
+}

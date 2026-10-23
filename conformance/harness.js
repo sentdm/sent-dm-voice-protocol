@@ -215,10 +215,12 @@ async function runScenario(scenario, index, run) {
       if (!item) fail(`expected audio on stream ${stream}, got ${nothing(run.connection)}`);
       if (!item.audio.samples.equals(sentAudio[stream]))
         fail('the audio that came back is not the audio that was sent');
+    } else if (step.drop) {
+      // As a network fault or a load balancer would: no close frame, so the agent sees 1006.
+      run.connection.socket.terminate();
     } else if (step.expect_reconnect) {
       const next = await run.pending.next(run.timeoutMs);
-      if (!next?.connection)
-        fail(next?.failure ?? 'the agent did not open a new connection after connection.draining');
+      if (!next?.connection) fail(next?.failure ?? 'the agent did not open a new connection');
       run.connection = next.connection;
     } else {
       fail(`unknown step ${JSON.stringify(step)}`);

@@ -1,14 +1,16 @@
 asyncapi: 3.1.0
 info:
   title: Sent Voice Agents protocol
-  version: 0.1.2
+  version: 0.2.0
   description: |
     The session an AI agent holds with Sent while it is on a phone call: JSON text frames and binary audio
     frames over one WebSocket, with the subprotocol sent.voice.v1. docs/protocol.md has the rules this document
     cannot express, and examples/ has valid and invalid frames.
 
     Each message's x-sent-direction says who sends it (sent, agent or both), x-sent-scope whether it belongs to
-    the connection or to one session, and x-sent-session-types which session types allow it.
+    the connection or to one session, and x-sent-session-types which session types allow it. x-sent-counted: false
+    marks a message that does not count towards a resume's received, and the agentConnection channel's
+    x-sent-retained-frames is how many of its latest counted frames each side keeps for each session.
 
     Status: Preview. The protocol may change before 1.0.
   license:
@@ -32,7 +34,8 @@ servers:
 channels:
   agentConnection:
     address: /v1/agents/connect
-    description: A connection the agent opens to Sent, carrying many sessions. See Connecting in docs/protocol.md.
+    description: A connection the agent opens to Sent, carrying many sessions, which can move to another connection the agent opens. See Connecting and Resuming sessions in docs/protocol.md.
+    x-sent-retained-frames: 32
     servers:
       - $ref: '#/servers/sent'
     bindings:
@@ -68,12 +71,16 @@ channels:
         $ref: '#/components/messages/toolResult'
       sessionEnd:
         $ref: '#/components/messages/sessionEnd'
+      sessionResumed:
+        $ref: '#/components/messages/sessionResumed'
       agentSay:
         $ref: '#/components/messages/agentSay'
       toolCall:
         $ref: '#/components/messages/toolCall'
       agentClear:
         $ref: '#/components/messages/agentClear'
+      sessionResume:
+        $ref: '#/components/messages/sessionResume'
       pong:
         $ref: '#/components/messages/pong'
       audio:
@@ -145,6 +152,7 @@ operations:
       - $ref: '#/channels/agentConnection/messages/userSaid'
       - $ref: '#/channels/agentConnection/messages/toolResult'
       - $ref: '#/channels/agentConnection/messages/sessionEnd'
+      - $ref: '#/channels/agentConnection/messages/sessionResumed'
       - $ref: '#/channels/agentConnection/messages/audio'
   agentConnectionReceive:
     action: receive
@@ -154,6 +162,7 @@ operations:
       - $ref: '#/channels/agentConnection/messages/agentSay'
       - $ref: '#/channels/agentConnection/messages/toolCall'
       - $ref: '#/channels/agentConnection/messages/agentClear'
+      - $ref: '#/channels/agentConnection/messages/sessionResume'
       - $ref: '#/channels/agentConnection/messages/pong'
       - $ref: '#/channels/agentConnection/messages/audio'
   agentEndpointSend:
@@ -218,6 +227,7 @@ components:
           $ref: './schemas/frames/error.json'
       x-sent-direction: sent
       x-sent-scope: connection
+      x-sent-counted: false
     sessionStart:
       name: session.start
       payload:
@@ -227,6 +237,7 @@ components:
       x-sent-direction: sent
       x-sent-scope: session
       x-sent-session-types: [text, audio]
+      x-sent-counted: false
     userSaid:
       name: user.said
       payload:
@@ -254,6 +265,17 @@ components:
       x-sent-direction: sent
       x-sent-scope: session
       x-sent-session-types: [text, audio]
+    sessionResumed:
+      name: session.resumed
+      summary: The answer to session.resume. Only on a connection the agent opened.
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: './schemas/frames/session.resumed.json'
+      x-sent-direction: sent
+      x-sent-scope: session
+      x-sent-session-types: [text, audio]
+      x-sent-counted: false
     agentSay:
       name: agent.say
       payload:
@@ -281,6 +303,17 @@ components:
       x-sent-direction: agent
       x-sent-scope: session
       x-sent-session-types: [text, audio]
+    sessionResume:
+      name: session.resume
+      summary: Moves a session to this connection. Only on a connection the agent opened.
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: './schemas/frames/session.resume.json'
+      x-sent-direction: agent
+      x-sent-scope: session
+      x-sent-session-types: [text, audio]
+      x-sent-counted: false
     pong:
       name: pong
       payload:
@@ -299,3 +332,4 @@ components:
       x-sent-direction: both
       x-sent-scope: session
       x-sent-session-types: [audio]
+      x-sent-counted: false

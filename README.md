@@ -4,7 +4,7 @@ The protocol an AI agent speaks to take and place phone calls through [Sent](htt
 agent holds while it is on a call, over a WebSocket at `wss://voice.sent.dm`. Any language with a WebSocket
 client can build an agent from it, with or without a Sent Voice Agents SDK.
 
-Status: **Preview**, version 0.1.2. The protocol is not released yet and may change before 1.0.
+Status: **Preview**, version 0.2.0. The protocol is not released yet and may change before 1.0.
 
 ## What is here
 
