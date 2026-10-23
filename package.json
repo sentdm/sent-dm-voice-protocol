@@ -1,0 +1,21 @@
+{
+  "name": "sent-dm-voice-protocol",
+  "private": true,
+  "version": "0.1.0",
+  "description": "The Sent Voice Agents protocol: its AsyncAPI spec, frame schemas and conformance tests",
+  "license": "Apache-2.0",
+  "repository": "github:sentdm/sent-dm-voice-protocol",
+  "packageManager": "pnpm@10.30.1",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "lint": "prettier --check .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@asyncapi/parser": "^3.6.6",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "prettier": "^3.9.10"
+  }
+}

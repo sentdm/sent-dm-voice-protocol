@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.sent.dm/voice/v1/frames/tool.result.json",
+  "title": "tool.result",
+  "description": "The outcome of one tool.call, with its call_ref.",
+  "type": "object",
+  "required": ["type", "session_id", "call_ref", "ok"],
+  "properties": {
+    "type": {
+      "const": "tool.result"
+    },
+    "session_id": {
+      "$ref": "../common.json#/definitions/sessionId"
+    },
+    "call_ref": {
+      "$ref": "../common.json#/definitions/callRef"
+    },
+    "ok": {
+      "type": "boolean"
+    },
+    "error": {
+      "$ref": "../common.json#/definitions/error"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "ok": {
+            "const": false
+          }
+        }
+      },
+      "then": {
+        "type": "object",
+        "required": ["error"]
+      }
+    }
+  ]
+}

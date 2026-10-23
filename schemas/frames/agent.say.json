@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.sent.dm/voice/v1/frames/agent.say.json",
+  "title": "agent.say",
+  "description": "Text sessions: speak this to the caller.",
+  "type": "object",
+  "required": ["type", "session_id", "text"],
+  "properties": {
+    "type": {
+      "const": "agent.say"
+    },
+    "session_id": {
+      "$ref": "../common.json#/definitions/sessionId"
+    },
+    "text": {
+      "$ref": "../common.json#/definitions/text"
+    },
+    "interruptible": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the caller speaking stops this speech."
+    },
+    "last": {
+      "type": "boolean",
+      "default": true,
+      "description": "false when more text for the same utterance follows."
+    }
+  }
+}

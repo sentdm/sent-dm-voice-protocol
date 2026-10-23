@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.sent.dm/voice/v1/common.json",
+  "title": "Definitions shared by the frames",
+  "definitions": {
+    "sessionId": {
+      "type": "string",
+      "pattern": "^vs_[A-Za-z0-9-]+$",
+      "description": "The session: one call while one agent is on it."
+    },
+    "callId": {
+      "type": "string",
+      "pattern": "^call_[A-Za-z0-9-]+$",
+      "description": "The call, as the REST API's /v3/voice/calls knows it. It stays the same when the call moves to a person."
+    },
+    "agentId": {
+      "type": "string",
+      "pattern": "^agent_[A-Za-z0-9-]+$",
+      "description": "The agent, as the REST API's /v3/voice/agents knows it."
+    },
+    "callRef": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "Chosen by the agent for a tool.call, unique within the session, and repeated in its tool.result."
+    },
+    "party": {
+      "type": "object",
+      "description": "One end of a call, in the shape of the REST API's call parties.",
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "description": "user, number, conference, agent or anonymous. Sent may add kinds.",
+          "anyOf": [
+            {
+              "enum": ["user", "number", "conference", "agent", "anonymous"]
+            },
+            {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*$"
+            }
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The app user's identity, the E.164 number, the room name or the agent id. Absent for anonymous."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "const": "anonymous"
+              }
+            }
+          },
+          "else": {
+            "type": "object",
+            "required": ["value"]
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "const": "number"
+              }
+            }
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string",
+                "pattern": "^\\+[1-9][0-9]{6,14}$"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "error": {
+      "type": "object",
+      "required": ["code", "message"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Stable and machine-readable. Sent may add codes."
+        },
+        "message": {
+          "type": "string",
+          "description": "For people. It may change without notice."
+        }
+      }
+    },
+    "milliseconds": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Milliseconds since the Unix epoch."
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    }
+  }
+}

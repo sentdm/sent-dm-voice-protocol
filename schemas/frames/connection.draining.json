@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.sent.dm/voice/v1/frames/connection.draining.json",
+  "title": "connection.draining",
+  "description": "No new sessions will start on this connection. Open a new one now, while sessions already on this one go on.",
+  "type": "object",
+  "required": ["type"],
+  "properties": {
+    "type": {
+      "const": "connection.draining"
+    }
+  }
+}

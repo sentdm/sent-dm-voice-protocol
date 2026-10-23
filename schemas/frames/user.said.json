@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.sent.dm/voice/v1/frames/user.said.json",
+  "title": "user.said",
+  "description": "Text sessions: one complete utterance from the caller.",
+  "type": "object",
+  "required": ["type", "session_id", "text"],
+  "properties": {
+    "type": {
+      "const": "user.said"
+    },
+    "session_id": {
+      "$ref": "../common.json#/definitions/sessionId"
+    },
+    "text": {
+      "$ref": "../common.json#/definitions/text"
+    },
+    "correction": {
+      "type": "boolean",
+      "default": false,
+      "description": "true when this replaces the session's previous user.said."
+    }
+  }
+}
