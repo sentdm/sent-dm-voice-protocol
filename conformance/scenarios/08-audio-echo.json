@@ -1,0 +1,24 @@
+{
+  "description": "An audio session: no greeting, and every audio frame comes back on the same stream.",
+  "steps": [
+    {
+      "send": {
+        "type": "session.start",
+        "session_id": "$a",
+        "call_id": "call_conformance-a",
+        "agent_id": "agent_conformance",
+        "direction": "inbound",
+        "from": { "kind": "number", "value": "+14155550100" },
+        "to": { "kind": "number", "value": "+14155550199" },
+        "session_type": "audio",
+        "started_at": "2026-10-23T12:00:00Z",
+        "audio": { "stream": 7, "sample_rate": 16000 }
+      }
+    },
+    { "send_audio": { "stream": 7, "samples": 320 } },
+    { "expect_audio": { "stream": 7 } },
+    { "send_audio": { "stream": 7, "samples": 320 } },
+    { "expect_audio": { "stream": 7 } },
+    { "send": { "type": "session.end", "session_id": "$a", "reason": "caller_hung_up", "duration_ms": 1000 } }
+  ]
+}

@@ -1,0 +1,25 @@
+name: Sent Voice Agents conformance
+description: Runs the Sent Voice Agents protocol conformance scenarios against an SDK's conformance agent.
+inputs:
+  agent:
+    description: >-
+      The command that starts the SDK's conformance agent, run from the workspace. The agent connects to the URL
+      in SENT_CONFORMANCE_URL with any API key.
+    required: true
+  timeout:
+    description: How long each step waits for the agent, in milliseconds.
+    default: '3000'
+runs:
+  using: composite
+  steps:
+    - name: Install the harness
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      run: npx --yes "$(node -p "require('./package.json').packageManager")" install --frozen-lockfile
+
+    - name: Run the conformance scenarios
+      shell: bash
+      env:
+        AGENT: ${{ inputs.agent }}
+        TIMEOUT: ${{ inputs.timeout }}
+      run: node "$GITHUB_ACTION_PATH/conformance/harness.js" --agent "$AGENT" --timeout "$TIMEOUT"

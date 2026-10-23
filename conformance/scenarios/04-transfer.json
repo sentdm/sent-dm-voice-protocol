@@ -1,0 +1,31 @@
+{
+  "description": "The agent transfers the call, Sent confirms, and the session ends as transferred.",
+  "steps": [
+    {
+      "send": {
+        "type": "session.start",
+        "session_id": "$a",
+        "call_id": "call_conformance-a",
+        "agent_id": "agent_conformance",
+        "direction": "inbound",
+        "from": { "kind": "number", "value": "+14155550100" },
+        "to": { "kind": "number", "value": "+14155550199" },
+        "session_type": "text",
+        "started_at": "2026-10-23T12:00:00Z"
+      }
+    },
+    { "expect": { "type": "agent.say", "session_id": "$a", "text": "Hello from the conformance agent." } },
+    { "send": { "type": "user.said", "session_id": "$a", "text": "transfer" } },
+    {
+      "expect": {
+        "type": "tool.call",
+        "session_id": "$a",
+        "name": "transfer",
+        "arguments": { "to": { "kind": "user", "value": "conformance-desk" } }
+      },
+      "capture": { "ref": "call_ref" }
+    },
+    { "send": { "type": "tool.result", "session_id": "$a", "call_ref": "$ref", "ok": true } },
+    { "send": { "type": "session.end", "session_id": "$a", "reason": "transferred", "duration_ms": 1000 } }
+  ]
+}

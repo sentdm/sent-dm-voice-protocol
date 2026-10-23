@@ -1,0 +1,7 @@
+{
+  "description": "The agent answers ping with pong carrying the same ts.",
+  "steps": [
+    { "send": { "type": "ping", "ts": 1792411215000 } },
+    { "expect": { "type": "pong", "ts": 1792411215000 } }
+  ]
+}
