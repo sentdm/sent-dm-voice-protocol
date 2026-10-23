@@ -15,6 +15,8 @@ Status: **Preview**, version 0.1.0. The protocol is not released yet and may cha
 | [`schemas/`](schemas)                    | A JSON Schema (draft-07) for each frame, which `asyncapi.yaml` references       |
 | [`examples/`](examples)                  | Valid frames, and frames each schema must refuse                                |
 | [`docs/decisions.md`](docs/decisions.md) | Why the protocol is shaped the way it is                                        |
+| [`conformance/`](conformance)            | The harness, its scenarios and the agent every SDK writes to pass them          |
+| [`action.yml`](action.yml)               | The GitHub Action an SDK's CI runs the harness with                             |
 
 ## A session in six frames
 
@@ -31,14 +33,12 @@ The agent connects with the account API key, and Sent sends `connection.ready`. 
 
 ## Conformance
 
-Every Sent Voice Agents SDK will run the same conformance tests in CI before it is released. Today they cover the
-frames, in Node: each schema accepts its valid examples and refuses its invalid ones, and `asyncapi.yaml` agrees
-with the schemas. A harness that plays Sent's side of whole sessions against an agent comes next.
+Every Sent Voice Agents SDK runs the same conformance scenarios in CI before it is released: a harness plays
+Sent's side of whole sessions against the SDK's conformance agent and checks every frame it sends. The SDK runs
+it with this repository's action, and [`conformance/`](conformance) says how, and what the agent must do.
 
-```sh
-pnpm install
-pnpm test
-```
+`pnpm test` checks this repository itself: the schemas against their examples, `asyncapi.yaml` against the
+schemas, and the harness against a reference agent.
 
 ## Versions
 

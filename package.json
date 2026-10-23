@@ -10,12 +10,14 @@
   "scripts": {
     "test": "node --test",
     "lint": "prettier --check .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "conformance": "node conformance/harness.js"
   },
   "devDependencies": {
     "@asyncapi/parser": "^3.6.6",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
-    "prettier": "^3.9.10"
+    "prettier": "^3.9.10",
+    "ws": "^8.22.0"
   }
 }

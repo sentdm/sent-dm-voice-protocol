@@ -1,0 +1,25 @@
+{
+  "description": "A correction replaces the previous utterance: the agent clears its queued speech and answers the correction.",
+  "steps": [
+    {
+      "send": {
+        "type": "session.start",
+        "session_id": "$a",
+        "call_id": "call_conformance-a",
+        "agent_id": "agent_conformance",
+        "direction": "inbound",
+        "from": { "kind": "number", "value": "+14155550100" },
+        "to": { "kind": "number", "value": "+14155550199" },
+        "session_type": "text",
+        "started_at": "2026-10-23T12:00:00Z"
+      }
+    },
+    { "expect": { "type": "agent.say", "session_id": "$a", "text": "Hello from the conformance agent." } },
+    { "send": { "type": "user.said", "session_id": "$a", "text": "echo apple" } },
+    { "expect": { "type": "agent.say", "session_id": "$a", "text": "apple" } },
+    { "send": { "type": "user.said", "session_id": "$a", "text": "echo apricot", "correction": true } },
+    { "expect": { "type": "agent.clear", "session_id": "$a" } },
+    { "expect": { "type": "agent.say", "session_id": "$a", "text": "apricot" } },
+    { "send": { "type": "session.end", "session_id": "$a", "reason": "caller_hung_up", "duration_ms": 1000 } }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "description": "The agent ignores frame types, fields and values it does not know.",
+  "steps": [
+    { "send": { "type": "connection.added_later", "detail": true } },
+    {
+      "send": {
+        "type": "session.start",
+        "session_id": "$a",
+        "call_id": "call_conformance-a",
+        "agent_id": "agent_conformance",
+        "direction": "inbound",
+        "from": { "kind": "sip_trunk", "value": "acme-pbx" },
+        "to": { "kind": "number", "value": "+14155550199" },
+        "session_type": "text",
+        "started_at": "2026-10-23T12:00:00Z",
+        "added_later": { "anything": 1 }
+      }
+    },
+    { "expect": { "type": "agent.say", "session_id": "$a", "text": "Hello from the conformance agent." } },
+    { "send": { "type": "user.said", "session_id": "$a", "text": "echo still here", "added_later": true } },
+    { "expect": { "type": "agent.say", "session_id": "$a", "text": "still here" } },
+    {
+      "send": {
+        "type": "session.end",
+        "session_id": "$a",
+        "reason": "reason_added_later",
+        "duration_ms": 1000
+      }
+    }
+  ]
+}

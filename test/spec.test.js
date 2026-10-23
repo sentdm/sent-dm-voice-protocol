@@ -1,25 +1,22 @@
-import { Parser, fromFile } from '@asyncapi/parser';
-import Ajv from 'ajv';
-import addFormats from 'ajv-formats';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import { describe, test } from 'node:test';
+import {
+  ajv,
+  diagnostics,
+  frameTypes as frames,
+  readJson,
+  root,
+  rules,
+  schemas,
+  spec as document,
+  validators,
+  version,
+} from '../conformance/protocol.js';
 
-const root = path.resolve(import.meta.dirname, '..');
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
-const readJson = (file) => JSON.parse(read(file));
 const list = (dir) => fs.readdirSync(path.join(root, dir)).sort();
-
-const { version } = readJson('package.json');
-const frames = list('schemas/frames').map((file) => file.replace(/\.json$/, ''));
-const schemas = Object.fromEntries(frames.map((frame) => [frame, readJson(`schemas/frames/${frame}.json`)]));
-
-// strictTypes fails on a subschema that uses object keywords without saying it is an object.
-const ajv = new Ajv({ allErrors: true, strictTypes: true });
-addFormats(ajv);
-ajv.addSchema(readJson('schemas/common.json'));
-const validators = Object.fromEntries(frames.map((frame) => [frame, ajv.compile(schemas[frame])]));
 
 const examples = (kind) =>
   list(`examples/${kind}`).flatMap((frame) =>
@@ -31,8 +28,6 @@ const examples = (kind) =>
   );
 const valid = examples('valid');
 
-const { document, diagnostics } = await fromFile(new Parser(), path.join(root, 'asyncapi.yaml')).parse();
-const extension = (message, name) => message.extensions().get(name)?.value();
 const names = (messages) =>
   messages
     .all()
@@ -67,7 +62,7 @@ describe('the AsyncAPI document', () => {
       const sender = operation.action() === 'send' ? 'sent' : 'agent';
       for (const message of operation.messages().all()) {
         assert.ok(
-          [sender, 'both'].includes(extension(message, 'x-sent-direction')),
+          [sender, 'both'].includes(rules[message.name()].direction),
           `${operation.id()} carries ${message.name()}`,
         );
       }
@@ -80,9 +75,10 @@ describe('the AsyncAPI document', () => {
       .all()
       .filter((message) => message.name() !== 'audio')) {
       const schema = schemas[message.name()];
-      const session = extension(message, 'x-sent-scope') === 'session';
+      const { scope, sessionTypes } = rules[message.name()];
+      const session = scope === 'session';
       assert.equal(schema.required.includes('session_id'), session, message.name());
-      assert.equal(Boolean(extension(message, 'x-sent-session-types')), session, message.name());
+      assert.equal(Boolean(sessionTypes), session, message.name());
     }
   });
 
