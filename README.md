@@ -4,7 +4,7 @@ The protocol an AI agent speaks to take and place phone calls through [Sent](htt
 agent holds while it is on a call, over a WebSocket at `wss://voice.sent.dm`. Any language with a WebSocket
 client can build an agent from it, with or without a Sent Voice Agents SDK.
 
-Status: **Preview**, version 0.1.1. The protocol is not released yet and may change before 1.0.
+Status: **Preview**, version 0.1.2. The protocol is not released yet and may change before 1.0.
 
 ## What is here
 
@@ -45,6 +45,10 @@ schemas, and the harness against a reference agent.
 Releases are tags such as `v0.1.0`, which the Sent Voice Gateway and every SDK pin. How versions relate to the
 `sent.voice.v1` subprotocol, and what may change, is under
 [Compatibility and versions](docs/protocol.md#compatibility-and-versions).
+
+The repository is also a Go module, `github.com/sentdm/sent-dm-voice-protocol`. Its one export, `Files`, embeds
+`package.json`, `asyncapi.yaml`, `schemas/` and `examples/` of the release in `go.mod`, so a Go consumer reads the
+spec from the module instead of a submodule.
 
 ## License
 
