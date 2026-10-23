@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.sent.dm/voice/v1/frames/ping.json",
+  "title": "ping",
+  "description": "Sent's heartbeat on a connection. Answer with pong carrying the same ts.",
+  "type": "object",
+  "required": ["type", "ts"],
+  "properties": {
+    "type": {
+      "const": "ping"
+    },
+    "ts": {
+      "$ref": "../common.json#/definitions/milliseconds"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.sent.dm/voice/v1/frames/pong.json",
+  "title": "pong",
+  "description": "The answer to ping, with the same ts.",
+  "type": "object",
+  "required": ["type", "ts"],
+  "properties": {
+    "type": {
+      "const": "pong"
+    },
+    "ts": {
+      "$ref": "../common.json#/definitions/milliseconds"
+    }
+  }
+}

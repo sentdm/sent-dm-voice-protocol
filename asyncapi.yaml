@@ -1,0 +1,301 @@
+asyncapi: 3.1.0
+info:
+  title: Sent Voice Agents protocol
+  version: 0.1.0
+  description: |
+    The session an AI agent holds with Sent while it is on a phone call: JSON text frames and binary audio
+    frames over one WebSocket, with the subprotocol sent.voice.v1. docs/protocol.md has the rules this document
+    cannot express, and examples/ has valid and invalid frames.
+
+    Each message's x-sent-direction says who sends it (sent, agent or both), x-sent-scope whether it belongs to
+    the connection or to one session, and x-sent-session-types which session types allow it.
+
+    Status: Preview. The protocol may change before 1.0.
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+defaultContentType: application/json
+servers:
+  sent:
+    host: voice.sent.dm
+    protocol: wss
+    description: Sent, where an agent connects with the account API key or a short-lived session token.
+    security:
+      - $ref: '#/components/securitySchemes/bearer'
+  agent:
+    host: '{host}'
+    protocol: wss
+    description: The agent's own websocket_url, which Sent connects to once per session.
+    variables:
+      host:
+        description: The host of the agent's websocket_url.
+channels:
+  agentConnection:
+    address: /v1/agents/connect
+    description: A connection the agent opens to Sent, carrying many sessions. See Connecting in docs/protocol.md.
+    servers:
+      - $ref: '#/servers/sent'
+    bindings:
+      ws:
+        query:
+          type: object
+          required: [agent_id]
+          properties:
+            agent_id:
+              type: string
+        headers:
+          type: object
+          required: [Authorization, Sec-WebSocket-Protocol]
+          properties:
+            Authorization:
+              type: string
+            Sec-WebSocket-Protocol:
+              const: sent.voice.v1
+    messages:
+      connectionReady:
+        $ref: '#/components/messages/connectionReady'
+      connectionDraining:
+        $ref: '#/components/messages/connectionDraining'
+      ping:
+        $ref: '#/components/messages/ping'
+      error:
+        $ref: '#/components/messages/error'
+      sessionStart:
+        $ref: '#/components/messages/sessionStart'
+      userSaid:
+        $ref: '#/components/messages/userSaid'
+      toolResult:
+        $ref: '#/components/messages/toolResult'
+      sessionEnd:
+        $ref: '#/components/messages/sessionEnd'
+      agentSay:
+        $ref: '#/components/messages/agentSay'
+      toolCall:
+        $ref: '#/components/messages/toolCall'
+      agentClear:
+        $ref: '#/components/messages/agentClear'
+      pong:
+        $ref: '#/components/messages/pong'
+      audio:
+        $ref: '#/components/messages/audio'
+  agentEndpoint:
+    address: null
+    description: A connection Sent opens to the agent's websocket_url, one per session, with a signed handshake. See Connecting in docs/protocol.md.
+    servers:
+      - $ref: '#/servers/agent'
+    bindings:
+      ws:
+        headers:
+          type: object
+          required:
+            [
+              X-Webhook-ID,
+              X-Webhook-Event-ID,
+              X-Webhook-Timestamp,
+              X-Webhook-Signature,
+              Sec-WebSocket-Protocol,
+            ]
+          properties:
+            X-Webhook-ID:
+              type: string
+            X-Webhook-Event-ID:
+              type: string
+            X-Webhook-Timestamp:
+              type: string
+            X-Webhook-Signature:
+              type: string
+            Sec-WebSocket-Protocol:
+              const: sent.voice.v1
+    messages:
+      connectionReady:
+        $ref: '#/components/messages/connectionReady'
+      ping:
+        $ref: '#/components/messages/ping'
+      error:
+        $ref: '#/components/messages/error'
+      sessionStart:
+        $ref: '#/components/messages/sessionStart'
+      userSaid:
+        $ref: '#/components/messages/userSaid'
+      toolResult:
+        $ref: '#/components/messages/toolResult'
+      sessionEnd:
+        $ref: '#/components/messages/sessionEnd'
+      agentSay:
+        $ref: '#/components/messages/agentSay'
+      toolCall:
+        $ref: '#/components/messages/toolCall'
+      agentClear:
+        $ref: '#/components/messages/agentClear'
+      pong:
+        $ref: '#/components/messages/pong'
+      audio:
+        $ref: '#/components/messages/audio'
+operations:
+  agentConnectionSend:
+    action: send
+    channel:
+      $ref: '#/channels/agentConnection'
+    messages:
+      - $ref: '#/channels/agentConnection/messages/connectionReady'
+      - $ref: '#/channels/agentConnection/messages/connectionDraining'
+      - $ref: '#/channels/agentConnection/messages/ping'
+      - $ref: '#/channels/agentConnection/messages/error'
+      - $ref: '#/channels/agentConnection/messages/sessionStart'
+      - $ref: '#/channels/agentConnection/messages/userSaid'
+      - $ref: '#/channels/agentConnection/messages/toolResult'
+      - $ref: '#/channels/agentConnection/messages/sessionEnd'
+      - $ref: '#/channels/agentConnection/messages/audio'
+  agentConnectionReceive:
+    action: receive
+    channel:
+      $ref: '#/channels/agentConnection'
+    messages:
+      - $ref: '#/channels/agentConnection/messages/agentSay'
+      - $ref: '#/channels/agentConnection/messages/toolCall'
+      - $ref: '#/channels/agentConnection/messages/agentClear'
+      - $ref: '#/channels/agentConnection/messages/pong'
+      - $ref: '#/channels/agentConnection/messages/audio'
+  agentEndpointSend:
+    action: send
+    channel:
+      $ref: '#/channels/agentEndpoint'
+    messages:
+      - $ref: '#/channels/agentEndpoint/messages/connectionReady'
+      - $ref: '#/channels/agentEndpoint/messages/ping'
+      - $ref: '#/channels/agentEndpoint/messages/error'
+      - $ref: '#/channels/agentEndpoint/messages/sessionStart'
+      - $ref: '#/channels/agentEndpoint/messages/userSaid'
+      - $ref: '#/channels/agentEndpoint/messages/toolResult'
+      - $ref: '#/channels/agentEndpoint/messages/sessionEnd'
+      - $ref: '#/channels/agentEndpoint/messages/audio'
+  agentEndpointReceive:
+    action: receive
+    channel:
+      $ref: '#/channels/agentEndpoint'
+    messages:
+      - $ref: '#/channels/agentEndpoint/messages/agentSay'
+      - $ref: '#/channels/agentEndpoint/messages/toolCall'
+      - $ref: '#/channels/agentEndpoint/messages/agentClear'
+      - $ref: '#/channels/agentEndpoint/messages/pong'
+      - $ref: '#/channels/agentEndpoint/messages/audio'
+components:
+  securitySchemes:
+    bearer:
+      type: http
+      scheme: bearer
+      description: The account API key, or a short-lived session token.
+  messages:
+    connectionReady:
+      name: connection.ready
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: './schemas/frames/connection.ready.json'
+      x-sent-direction: sent
+      x-sent-scope: connection
+    connectionDraining:
+      name: connection.draining
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: './schemas/frames/connection.draining.json'
+      x-sent-direction: sent
+      x-sent-scope: connection
+    ping:
+      name: ping
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: './schemas/frames/ping.json'
+      x-sent-direction: sent
+      x-sent-scope: connection
+    error:
+      name: error
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: './schemas/frames/error.json'
+      x-sent-direction: sent
+      x-sent-scope: connection
+    sessionStart:
+      name: session.start
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: './schemas/frames/session.start.json'
+      x-sent-direction: sent
+      x-sent-scope: session
+      x-sent-session-types: [text, audio]
+    userSaid:
+      name: user.said
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: './schemas/frames/user.said.json'
+      x-sent-direction: sent
+      x-sent-scope: session
+      x-sent-session-types: [text]
+    toolResult:
+      name: tool.result
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: './schemas/frames/tool.result.json'
+      x-sent-direction: sent
+      x-sent-scope: session
+      x-sent-session-types: [text, audio]
+    sessionEnd:
+      name: session.end
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: './schemas/frames/session.end.json'
+      x-sent-direction: sent
+      x-sent-scope: session
+      x-sent-session-types: [text, audio]
+    agentSay:
+      name: agent.say
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: './schemas/frames/agent.say.json'
+      x-sent-direction: agent
+      x-sent-scope: session
+      x-sent-session-types: [text]
+    toolCall:
+      name: tool.call
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: './schemas/frames/tool.call.json'
+      x-sent-direction: agent
+      x-sent-scope: session
+      x-sent-session-types: [text, audio]
+    agentClear:
+      name: agent.clear
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: './schemas/frames/agent.clear.json'
+      x-sent-direction: agent
+      x-sent-scope: session
+      x-sent-session-types: [text, audio]
+    pong:
+      name: pong
+      payload:
+        schemaFormat: application/schema+json;version=draft-07
+        schema:
+          $ref: './schemas/frames/pong.json'
+      x-sent-direction: agent
+      x-sent-scope: connection
+    audio:
+      name: audio
+      summary: Audio for one session, as Audio sessions in docs/protocol.md lays out.
+      contentType: application/octet-stream
+      payload:
+        type: string
+        format: binary
+      x-sent-direction: both
+      x-sent-scope: session
+      x-sent-session-types: [audio]

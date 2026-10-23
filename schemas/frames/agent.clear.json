@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.sent.dm/voice/v1/frames/agent.clear.json",
+  "title": "agent.clear",
+  "description": "Drop the speech or audio the agent sent that Sent has not played yet.",
+  "type": "object",
+  "required": ["type", "session_id"],
+  "properties": {
+    "type": {
+      "const": "agent.clear"
+    },
+    "session_id": {
+      "$ref": "../common.json#/definitions/sessionId"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.sent.dm/voice/v1/frames/error.json",
+  "title": "error",
+  "description": "A frame the agent sent was not accepted and had no effect. The connection stays open.",
+  "type": "object",
+  "required": ["type", "error"],
+  "properties": {
+    "type": {
+      "const": "error"
+    },
+    "error": {
+      "$ref": "../common.json#/definitions/error"
+    },
+    "session_id": {
+      "$ref": "../common.json#/definitions/sessionId"
+    },
+    "frame_type": {
+      "type": "string",
+      "description": "The type of the frame that was not accepted, when it had one."
+    }
+  }
+}

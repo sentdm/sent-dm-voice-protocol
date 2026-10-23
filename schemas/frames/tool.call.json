@@ -1,0 +1,138 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.sent.dm/voice/v1/frames/tool.call.json",
+  "title": "tool.call",
+  "description": "Act on the call with a built-in tool. Sent answers with exactly one tool.result.",
+  "type": "object",
+  "required": ["type", "session_id", "call_ref", "name"],
+  "properties": {
+    "type": {
+      "const": "tool.call"
+    },
+    "session_id": {
+      "$ref": "../common.json#/definitions/sessionId"
+    },
+    "call_ref": {
+      "$ref": "../common.json#/definitions/callRef"
+    },
+    "name": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$"
+    },
+    "arguments": {
+      "type": "object"
+    }
+  },
+  "definitions": {
+    "transfer": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "const": "transfer"
+        },
+        "arguments": {
+          "type": "object",
+          "required": ["to"],
+          "properties": {
+            "to": {
+              "allOf": [
+                {
+                  "$ref": "../common.json#/definitions/party"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "enum": ["user", "number", "agent"]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "required": ["arguments"]
+    },
+    "hangup": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "const": "hangup"
+        },
+        "arguments": {
+          "type": "object"
+        }
+      }
+    },
+    "send_dtmf": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "const": "send_dtmf"
+        },
+        "arguments": {
+          "type": "object",
+          "required": ["digits"],
+          "properties": {
+            "digits": {
+              "type": "string",
+              "pattern": "^[0-9*#A-Dw]+$",
+              "description": "w waits half a second."
+            }
+          }
+        }
+      },
+      "required": ["arguments"]
+    },
+    "hold": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "const": "hold"
+        },
+        "arguments": {
+          "type": "object",
+          "required": ["held"],
+          "properties": {
+            "held": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "required": ["arguments"]
+    },
+    "other": {
+      "type": "object",
+      "description": "A tool added after this version. Sent answers one it does not offer with unknown_tool.",
+      "properties": {
+        "name": {
+          "not": {
+            "enum": ["transfer", "hangup", "send_dtmf", "hold"]
+          }
+        },
+        "arguments": {
+          "type": "object"
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/definitions/transfer"
+    },
+    {
+      "$ref": "#/definitions/hangup"
+    },
+    {
+      "$ref": "#/definitions/send_dtmf"
+    },
+    {
+      "$ref": "#/definitions/hold"
+    },
+    {
+      "$ref": "#/definitions/other"
+    }
+  ]
+}

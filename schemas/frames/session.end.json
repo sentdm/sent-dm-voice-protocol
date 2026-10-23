@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.sent.dm/voice/v1/frames/session.end.json",
+  "title": "session.end",
+  "description": "Last for every session: the call has left the agent.",
+  "type": "object",
+  "required": ["type", "session_id", "reason", "duration_ms"],
+  "properties": {
+    "type": {
+      "const": "session.end"
+    },
+    "session_id": {
+      "$ref": "../common.json#/definitions/sessionId"
+    },
+    "reason": {
+      "description": "Why the call left the agent. Sent may add reasons, so treat one you do not know as failed.",
+      "anyOf": [
+        {
+          "enum": [
+            "caller_hung_up",
+            "agent_hung_up",
+            "transferred",
+            "max_duration",
+            "agent_unreachable",
+            "balance_exhausted",
+            "voice_disabled",
+            "failed"
+          ]
+        },
+        {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        }
+      ]
+    },
+    "duration_ms": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

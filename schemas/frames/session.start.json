@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.sent.dm/voice/v1/frames/session.start.json",
+  "title": "session.start",
+  "description": "First for every session: a call has reached the agent.",
+  "type": "object",
+  "required": [
+    "type",
+    "session_id",
+    "call_id",
+    "agent_id",
+    "direction",
+    "from",
+    "to",
+    "session_type",
+    "started_at"
+  ],
+  "properties": {
+    "type": {
+      "const": "session.start"
+    },
+    "session_id": {
+      "$ref": "../common.json#/definitions/sessionId"
+    },
+    "call_id": {
+      "$ref": "../common.json#/definitions/callId"
+    },
+    "agent_id": {
+      "$ref": "../common.json#/definitions/agentId"
+    },
+    "direction": {
+      "enum": ["inbound", "outbound"]
+    },
+    "from": {
+      "$ref": "../common.json#/definitions/party"
+    },
+    "to": {
+      "$ref": "../common.json#/definitions/party"
+    },
+    "session_type": {
+      "enum": ["text", "audio"]
+    },
+    "language": {
+      "type": "string",
+      "description": "The caller's language as a BCP 47 tag, from the agent's speech settings."
+    },
+    "audio": {
+      "type": "object",
+      "description": "Present on audio sessions.",
+      "required": ["stream"],
+      "properties": {
+        "stream": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535,
+          "description": "The number in the header of the session's binary audio frames, unique among the sessions open on the connection."
+        },
+        "sample_rate": {
+          "enum": [8000, 16000, 24000],
+          "default": 16000,
+          "description": "Hz of the session's 16-bit mono PCM, both ways."
+        }
+      }
+    },
+    "max_duration_ms": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "When Sent ends the session with reason max_duration, counted from started_at."
+    },
+    "context": {
+      "type": "object",
+      "description": "What the customer's backend passed when it started an outbound call. At most 4 KB as JSON."
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the session started, in ISO 8601, as the REST API writes times."
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "properties": {
+          "session_type": {
+            "const": "audio"
+          }
+        }
+      },
+      "then": {
+        "type": "object",
+        "required": ["audio"]
+      }
+    }
+  ]
+}
