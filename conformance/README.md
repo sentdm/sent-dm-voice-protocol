@@ -10,7 +10,7 @@ the rules in [`asyncapi.yaml`](../asyncapi.yaml).
 In the SDK's CI, use this repository as an action, at the tag of the protocol version the SDK implements:
 
 ```yaml
-- uses: sentdm/sent-dm-voice-protocol@vX.Y.Z
+- uses: sentdm/sent-dm-voice-protocol@v0.1.1
   with:
     agent: node examples/conformance-agent.js
 ```
