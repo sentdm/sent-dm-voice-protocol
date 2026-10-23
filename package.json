@@ -1,7 +1,7 @@
 {
   "name": "sent-dm-voice-protocol",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "The Sent Voice Agents protocol: its AsyncAPI spec, frame schemas and conformance tests",
   "license": "Apache-2.0",
   "repository": "github:sentdm/sent-dm-voice-protocol",
