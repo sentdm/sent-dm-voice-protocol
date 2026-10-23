@@ -107,6 +107,39 @@
       "type": "string",
       "minLength": 1,
       "maxLength": 4096
+    },
+    "resumeToken": {
+      "type": "string",
+      "pattern": "^vsr_[A-Za-z0-9_-]+$",
+      "minLength": 26,
+      "maxLength": 512,
+      "description": "A secret that moves one session to a new connection, once. Opaque: keep it out of URLs and logs."
+    },
+    "resume": {
+      "type": "object",
+      "description": "How to resume the session on a new connection. See Resuming sessions in docs/protocol.md.",
+      "required": ["token", "window_ms"],
+      "properties": {
+        "token": {
+          "$ref": "#/definitions/resumeToken"
+        },
+        "window_ms": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "How long Sent keeps the session for a resume after its connection is lost, or after it ends."
+        }
+      }
+    },
+    "audioStream": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535,
+      "description": "The number in the header of the session's binary audio frames, unique among the sessions open on the connection."
+    },
+    "frameCount": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "How many of the other side's frames for the session were read. Resuming sessions in docs/protocol.md says which frames count."
     }
   }
 }

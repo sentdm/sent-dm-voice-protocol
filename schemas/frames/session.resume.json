@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://schemas.sent.dm/voice/v1/frames/session.resume.json",
+  "title": "session.resume",
+  "description": "Move a session to this connection, after its connection was lost or while it drains.",
+  "type": "object",
+  "required": ["type", "session_id", "token", "received"],
+  "properties": {
+    "type": {
+      "const": "session.resume"
+    },
+    "session_id": {
+      "$ref": "../common.json#/definitions/sessionId"
+    },
+    "token": {
+      "$ref": "../common.json#/definitions/resumeToken"
+    },
+    "received": {
+      "$ref": "../common.json#/definitions/frameCount"
+    }
+  }
+}

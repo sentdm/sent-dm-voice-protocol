@@ -10,7 +10,7 @@ the rules in [`asyncapi.yaml`](../asyncapi.yaml).
 In the SDK's CI, use this repository as an action, at the tag of the protocol version the SDK implements:
 
 ```yaml
-- uses: sentdm/sent-dm-voice-protocol@v0.1.2
+- uses: sentdm/sent-dm-voice-protocol@v0.2.0
   with:
     agent: node examples/conformance-agent.js
 ```
@@ -41,21 +41,24 @@ not ok 2 - 02-streamed-reply
 Each SDK ships a small agent, written with its own API, that connects to `SENT_CONFORMANCE_URL` with any API key
 and does exactly this:
 
-| When it receives                           | It sends                                                                    |
-| ------------------------------------------ | --------------------------------------------------------------------------- |
-| `session.start` for a text session         | `agent.say` with `Hello from the conformance agent.`                        |
-| `user.said` `echo <text>`                  | `agent.say` with `<text>`                                                   |
-| `user.said` `stream <word> <rest>`         | `agent.say` with `<word>` and `last: false`, then `agent.say` with `<rest>` |
-| `user.said` `transfer`                     | `tool.call` `transfer` to `{ "kind": "user", "value": "conformance-desk" }` |
-| `user.said` `hangup`                       | `tool.call` `hangup`                                                        |
-| `user.said` `dtmf <digits>`                | `tool.call` `send_dtmf` with `<digits>`                                     |
-| `user.said` `hold`                         | `tool.call` `hold` with `held: true`                                        |
-| `user.said` with `correction: true`        | `agent.clear`, then what the corrected text asks for                        |
-| `tool.result` with `ok: false`             | `agent.say` with `Tool failed: <error.code>`                                |
-| Audio in an audio session                  | The same audio, on the same stream                                          |
-| `ping`                                     | `pong` with the same `ts`                                                   |
-| `connection.draining`                      | A new connection, keeping the old one until Sent closes it                  |
-| Anything else, or a field it does not know | Nothing                                                                     |
+| When it receives                           | It sends                                                                                                                                                           |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `session.start` for a text session         | `agent.say` with `Hello from the conformance agent.`                                                                                                               |
+| `user.said` `echo <text>`                  | `agent.say` with `<text>`                                                                                                                                          |
+| `user.said` `stream <word> <rest>`         | `agent.say` with `<word>` and `last: false`, then `agent.say` with `<rest>`                                                                                        |
+| `user.said` `transfer`                     | `tool.call` `transfer` to `{ "kind": "user", "value": "conformance-desk" }`                                                                                        |
+| `user.said` `hangup`                       | `tool.call` `hangup`                                                                                                                                               |
+| `user.said` `dtmf <digits>`                | `tool.call` `send_dtmf` with `<digits>`                                                                                                                            |
+| `user.said` `hold`                         | `tool.call` `hold` with `held: true`                                                                                                                               |
+| `user.said` with `correction: true`        | `agent.clear`, then what the corrected text asks for                                                                                                               |
+| `tool.result` with `ok: false`             | `agent.say` with `Tool failed: <error.code>`                                                                                                                       |
+| Audio in an audio session                  | The same audio, on the same stream                                                                                                                                 |
+| `ping`                                     | `pong` with the same `ts`                                                                                                                                          |
+| `connection.draining`                      | A new connection, keeping the old one until Sent closes it, and `session.resume` there for each session with a token                                               |
+| The loss of its connection                 | A new connection, and `session.resume` there for each lost session with a token                                                                                    |
+| `session.resumed`                          | The frames for the session Sent did not read, again, or `tool.call` `hangup` when it no longer has them. Then it serves the session there, on the new audio stream |
+| `error` answering a `session.resume`       | Nothing. It forgets the session                                                                                                                                    |
+| Anything else, or a field it does not know | Nothing                                                                                                                                                            |
 
 A command is the text up to the first space, and `<word>` is the text from there to the next space.
 [`reference-agent.js`](reference-agent.js) is this agent on the raw protocol, with no SDK. The tests run it
@@ -82,12 +85,15 @@ A scenario is a JSON file with a `description` and `steps`, run in order on one 
 | `capture`          | With `expect`: remembers fields of that frame, such as `{ "ref": "call_ref" }`, for `$ref` |
 | `send_audio`       | Sends `samples` 16-bit samples on `stream`                                                 |
 | `expect_audio`     | Waits for the same samples back on `stream`                                                |
+| `drop`             | Closes the agent's connection without a close frame, as a network fault would              |
 | `expect_reconnect` | Waits for the agent to open a new connection, and carries on there                         |
 
 `$a` and `$b` stand for the scenario's session ids. An `expect` with no `session_id` waits for a connection
 frame such as `pong`. A field an expected frame leaves out counts as its schema default, so an agent may omit
-`last: true`. After the last step the harness pings and waits for the pong, and any frame the agent sent that no
-step expected fails the scenario.
+`last: true`. After `expect_reconnect` the harness reads only the new connection, so a frame the agent sends on
+the old one fails the step waiting for it. After the last step the harness pings and waits for the pong, and any
+frame the agent sent that no step expected fails the scenario.
 
-Not covered yet: Sent connecting to the agent's `websocket_url` with a signed handshake, and the agent's handling
-of `error` frames.
+Not covered yet: Sent connecting to the agent's `websocket_url` with a signed handshake, the agent's handling of
+`error` frames, including a refused `session.resume`, and an agent closing with 1000 when it stops serving its
+calls. Sent's own side of resuming, the window, the replay and the checks on a token, is the gateway's to test.

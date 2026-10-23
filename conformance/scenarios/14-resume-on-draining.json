@@ -1,0 +1,44 @@
+{
+  "description": "On connection.draining, the agent moves its audio session to a new connection with session.resume while the old one is still open, and echoes audio there on the stream session.resumed gives.",
+  "steps": [
+    {
+      "send": {
+        "type": "session.start",
+        "session_id": "$a",
+        "call_id": "call_conformance-a",
+        "agent_id": "agent_conformance",
+        "direction": "inbound",
+        "from": { "kind": "number", "value": "+14155550100" },
+        "to": { "kind": "number", "value": "+14155550199" },
+        "session_type": "audio",
+        "started_at": "2026-10-23T12:00:00Z",
+        "audio": { "stream": 7, "sample_rate": 16000 },
+        "resume": { "token": "vsr_Pt1Ek9Yr5Gn2Vd7Cz4Hq8Ja0", "window_ms": 15000 }
+      }
+    },
+    { "send_audio": { "stream": 7, "samples": 320 } },
+    { "expect_audio": { "stream": 7 } },
+    { "send": { "type": "connection.draining" } },
+    { "expect_reconnect": true },
+    {
+      "expect": {
+        "type": "session.resume",
+        "session_id": "$a",
+        "token": "vsr_Pt1Ek9Yr5Gn2Vd7Cz4Hq8Ja0",
+        "received": 0
+      }
+    },
+    {
+      "send": {
+        "type": "session.resumed",
+        "session_id": "$a",
+        "received": 0,
+        "resume": { "token": "vsr_Wb6Ls3Mf0Ox8Ki2Tu5Dg9Re1", "window_ms": 15000 },
+        "audio": { "stream": 1 }
+      }
+    },
+    { "send_audio": { "stream": 1, "samples": 320 } },
+    { "expect_audio": { "stream": 1 } },
+    { "send": { "type": "session.end", "session_id": "$a", "reason": "caller_hung_up", "duration_ms": 1000 } }
+  ]
+}

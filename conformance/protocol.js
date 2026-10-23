@@ -23,12 +23,18 @@ export const subprotocol = agentConnection?.bindings().get('ws')?.value().header
   'Sec-WebSocket-Protocol'
 ].const;
 
+/** How many of its latest counted frames each side keeps for each session, to send again on a resume. */
+export const retainedFrames = agentConnection?.extensions().get('x-sent-retained-frames')?.value();
+
 /** Where the harness listens when not told otherwise. */
 export const defaultPort = 8765;
 
 const extension = (message, name) => message.extensions().get(name)?.value();
 
-/** Each message's x-sent rules: who sends it, its scope, and the session types that allow it. */
+/**
+ * Each message's x-sent rules: who sends it, its scope, the session types that allow it, and whether it counts
+ * towards a resume's received when it carries a session_id.
+ */
 export const rules = Object.fromEntries(
   (spec?.messages().all() ?? []).map((message) => [
     message.name(),
@@ -36,6 +42,7 @@ export const rules = Object.fromEntries(
       direction: extension(message, 'x-sent-direction'),
       scope: extension(message, 'x-sent-scope'),
       sessionTypes: extension(message, 'x-sent-session-types'),
+      counted: extension(message, 'x-sent-counted') ?? true,
     },
   ]),
 );

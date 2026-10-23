@@ -1,0 +1,55 @@
+{
+  "description": "The agent's connection drops twice. Each time it opens a new one and resumes the session with its latest token and how many of Sent's frames it read. It sends again the frame Sent did not read, and the second resume finds the call ended.",
+  "steps": [
+    {
+      "send": {
+        "type": "session.start",
+        "session_id": "$a",
+        "call_id": "call_conformance-a",
+        "agent_id": "agent_conformance",
+        "direction": "inbound",
+        "from": { "kind": "number", "value": "+14155550100" },
+        "to": { "kind": "number", "value": "+14155550199" },
+        "session_type": "text",
+        "started_at": "2026-10-23T12:00:00Z",
+        "resume": { "token": "vsr_Qm4Tz8Ws1Kd6Hp3Rv9Lb2Nx7", "window_ms": 15000 }
+      }
+    },
+    { "expect": { "type": "agent.say", "session_id": "$a", "text": "Hello from the conformance agent." } },
+    { "send": { "type": "user.said", "session_id": "$a", "text": "echo before" } },
+    { "expect": { "type": "agent.say", "session_id": "$a", "text": "before" } },
+    { "drop": true },
+    { "expect_reconnect": true },
+    {
+      "expect": {
+        "type": "session.resume",
+        "session_id": "$a",
+        "token": "vsr_Qm4Tz8Ws1Kd6Hp3Rv9Lb2Nx7",
+        "received": 1
+      }
+    },
+    {
+      "send": {
+        "type": "session.resumed",
+        "session_id": "$a",
+        "received": 1,
+        "resume": { "token": "vsr_Jc5Fy2Ug7Ae0Xo4Bi8Sl3Mw6", "window_ms": 15000 }
+      }
+    },
+    { "expect": { "type": "agent.say", "session_id": "$a", "text": "before" } },
+    { "send": { "type": "user.said", "session_id": "$a", "text": "echo after" } },
+    { "expect": { "type": "agent.say", "session_id": "$a", "text": "after" } },
+    { "drop": true },
+    { "expect_reconnect": true },
+    {
+      "expect": {
+        "type": "session.resume",
+        "session_id": "$a",
+        "token": "vsr_Jc5Fy2Ug7Ae0Xo4Bi8Sl3Mw6",
+        "received": 2
+      }
+    },
+    { "send": { "type": "session.resumed", "session_id": "$a", "received": 3 } },
+    { "send": { "type": "session.end", "session_id": "$a", "reason": "caller_hung_up", "duration_ms": 1000 } }
+  ]
+}

@@ -50,10 +50,7 @@
       "required": ["stream"],
       "properties": {
         "stream": {
-          "type": "integer",
-          "minimum": 1,
-          "maximum": 65535,
-          "description": "The number in the header of the session's binary audio frames, unique among the sessions open on the connection."
+          "$ref": "../common.json#/definitions/audioStream"
         },
         "sample_rate": {
           "enum": [8000, 16000, 24000],
@@ -70,6 +67,9 @@
     "context": {
       "type": "object",
       "description": "What the customer's backend passed when it started an outbound call. At most 4 KB as JSON."
+    },
+    "resume": {
+      "$ref": "../common.json#/definitions/resume"
     },
     "started_at": {
       "type": "string",

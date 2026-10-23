@@ -59,7 +59,30 @@ Party kinds, `session.end` reasons, error codes and tool names are open: the sch
 accept any other snake_case value. Closed enums would make a generated SDK reject the first value Sent adds,
 which is what `sent.voice.v1` promises to allow.
 
-## Not in 0.1.0
+## Sessions resume on a new connection
+
+An agent's connection carries up to `max_sessions` calls, and before 0.2.0 losing it ended each of them with
+`agent_unreachable`. Connections are lost for reasons that have nothing to do with the calls: a gateway rollout, a
+network fault, the agent's own deploy, and a load balancer closing long-lived sockets. The provider's side of a
+call cannot reconnect, but the agent's side can, so [the protocol lets it](protocol.md#resuming-sessions). The
+protocol is in Preview and no SDK exists yet, so this is the cheapest time to add it.
+
+- **A token per session.** The key alone would let any connection holding it take a session another process is
+  serving, and a token per connection would move all of its sessions or none, where each should move on its own.
+- **A frame, not a handshake header.** A connection takes resumes at any time, which a drain needs, and up to
+  `max_sessions` tokens do not have to fit in one header.
+- **Counts, not acknowledgements.** Frames in flight when a connection dies are lost both ways, and the counts
+  exchanged on a resume say what to send again, with no sequence field and nothing acknowledged while the
+  connection is healthy.
+- **A short window.** Fifteen seconds covers a reconnect, and a heartbeat timeout both sides see at about the same
+  time, while a caller whose agent has really gone waits no longer than that before `fallback`.
+- **Not for connections Sent opens.** Resuming one would have Sent repeat a signed handshake the agent must refuse
+  as a replay, and no agent needs it yet.
+
+Rejected: keeping the connection alive on the gateway's side instead, with an L4 load balancer for agents, longer
+drains or pod affinity. None of them survives a network fault, the agent's own deploy or a pod that is gone.
+
+## Not in 0.2.0
 
 Candidates for a later version, left out until an agent needs them:
 
@@ -69,3 +92,14 @@ Candidates for a later version, left out until an agent needs them:
 - 8 kHz µ-law audio, a quarter of the bytes of 16 kHz PCM, for agents whose models take it
 - tools beyond the four built-in ones, such as sending an SMS
 - the endpoint that mints session tokens
+
+## Open questions
+
+For the owners to settle while the protocol is in Preview:
+
+- **An optional `seq` on the counted frames, instead of implicit counting.** Implicit counting needs both sides to
+  classify every frame the same way, and two cases do not. An agent frame Sent refuses with `invalid_frame`,
+  because it is not JSON or is over 64 KB, cannot be tied to a session, so Sent does not count it while the agent
+  does, and on a resume the agent sends later frames twice. A session-scoped `error` answering a counted
+  `tool.call` is neither counted nor replayed, so if it is lost the agent waits forever for an answer. A `seq`
+  would make a desync detectable, but would not by itself fix the lost `error`.
