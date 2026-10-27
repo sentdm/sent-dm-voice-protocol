@@ -1,0 +1,26 @@
+{
+  "name": "sent-voice-echo-agent",
+  "private": true,
+  "version": "0.2.0",
+  "description": "A dial-in echo agent on the Sent Voice Agents protocol, in TypeScript on Node 22 with ws",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.6"
+  },
+  "scripts": {
+    "start": "node --experimental-strip-types src/agent.ts",
+    "test": "node --experimental-strip-types --test 'test/*.test.ts'",
+    "typecheck": "tsc"
+  },
+  "dependencies": {
+    "ws": "^8.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/ws": "^8.18.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
+    "typescript": "^5.8.0"
+  }
+}

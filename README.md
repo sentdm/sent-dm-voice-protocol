@@ -8,15 +8,15 @@ Status: **Preview**, version 0.2.0. The protocol is not released yet and may cha
 
 ## What is here
 
-| Path                                     | What it is                                                                      |
-| ---------------------------------------- | ------------------------------------------------------------------------------- |
-| [`docs/protocol.md`](docs/protocol.md)   | How to connect, the order of frames, audio, tools, heartbeats and compatibility |
-| [`asyncapi.yaml`](asyncapi.yaml)         | The protocol as an AsyncAPI 3.1 document: connections, frames and examples      |
-| [`schemas/`](schemas)                    | A JSON Schema (draft-07) for each frame, which `asyncapi.yaml` references       |
-| [`examples/`](examples)                  | Valid frames, and frames each schema must refuse                                |
-| [`docs/decisions.md`](docs/decisions.md) | Why the protocol is shaped the way it is                                        |
-| [`conformance/`](conformance)            | The harness, its scenarios and the agent every SDK writes to pass them          |
-| [`action.yml`](action.yml)               | The GitHub Action an SDK's CI runs the harness with                             |
+| Path                                     | What it is                                                                            |
+| ---------------------------------------- | ------------------------------------------------------------------------------------- |
+| [`docs/protocol.md`](docs/protocol.md)   | How to connect, the order of frames, audio, tools, heartbeats and compatibility       |
+| [`asyncapi.yaml`](asyncapi.yaml)         | The protocol as an AsyncAPI 3.1 document: connections, frames and examples            |
+| [`schemas/`](schemas)                    | A JSON Schema (draft-07) for each frame, which `asyncapi.yaml` references             |
+| [`examples/`](examples)                  | Valid frames and frames each schema must refuse, and sample agents in Node and Python |
+| [`docs/decisions.md`](docs/decisions.md) | Why the protocol is shaped the way it is                                              |
+| [`conformance/`](conformance)            | The harness, its scenarios and the agent every SDK writes to pass them                |
+| [`action.yml`](action.yml)               | The GitHub Action an SDK's CI runs the harness with                                   |
 
 ## A session in six frames
 
@@ -47,8 +47,8 @@ Releases are tags such as `v0.1.0`, which the Sent Voice Gateway and every SDK p
 [Compatibility and versions](docs/protocol.md#compatibility-and-versions).
 
 The repository is also a Go module, `github.com/sentdm/sent-dm-voice-protocol`. Its one export, `Files`, embeds
-`package.json`, `asyncapi.yaml`, `schemas/` and `examples/` of the release in `go.mod`, so a Go consumer reads the
-spec from the module instead of a submodule.
+`package.json`, `asyncapi.yaml`, `schemas/` and the frame examples of the release in `go.mod`, so a Go consumer
+reads the spec from the module instead of a submodule.
 
 ## License
 

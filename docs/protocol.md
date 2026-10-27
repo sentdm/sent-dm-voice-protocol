@@ -87,7 +87,7 @@ your clock, or when you have seen the `X-Webhook-Event-ID` before.
 - An outbound call's `context` is at most 4 KB as JSON.
 - Each side keeps the last 32 frames it counted for each session, as [Counting frames](#counting-frames) defines
   them, to send again when the session resumes. A lost connection can go unnoticed for three heartbeat
-  intervals, and then has `window_ms` to resume: 30 seconds today. A session counts about one frame a second at
+  intervals, and then has `window_ms` to resume: 15 seconds today. A session counts about one frame a second at
   most in that time, because Sent's come as the caller speaks and tools answer, and the agent's mostly answer
   Sent's, so 32 covers it. An agent that streams one reply in more than 32 pieces can outrun it.
 
