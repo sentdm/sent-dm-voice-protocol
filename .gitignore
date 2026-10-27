@@ -1,1 +1,7 @@
 node_modules/
+# The samples in examples/ pin nothing, so their lockfiles and environments stay local.
+examples/node/package-lock.json
+examples/node/pnpm-lock.yaml
+examples/python/.venv/
+examples/python/uv.lock
+__pycache__/

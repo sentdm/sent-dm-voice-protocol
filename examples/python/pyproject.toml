@@ -1,0 +1,11 @@
+[project]
+name = "sent-echo-agent"
+version = "0.2.0"
+description = "A dial-in echo agent on the Sent Voice Agents protocol, on Python 3.12 with websockets"
+license = "Apache-2.0"
+requires-python = ">=3.12"
+dependencies = ["websockets>=13"]
+
+[dependency-groups]
+# Only the tests need these: they check the sample's frames against the protocol's schemas.
+dev = ["jsonschema>=4.18"]
