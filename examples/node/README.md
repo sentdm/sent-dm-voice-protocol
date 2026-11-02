@@ -25,7 +25,7 @@ The environment is in [`examples/README.md`](../README.md#run-one-against-your-a
 ```
 2026-10-27T12:39:23.805Z session.start vs_6ive5w3q2v6l5uad5peudknv5q text inbound from +14155550100 resumable for 15000 ms
 2026-10-27T12:40:36.276Z draining moving 1 session(s)
-2026-10-27T12:40:36.492Z ready protocol 0.2.0 up to 50 sessions resuming 1
+2026-10-27T12:40:36.492Z ready protocol 1.0.0 up to 50 sessions resuming 1
 2026-10-27T12:40:36.543Z session.resumed vs_6ive5w3q2v6l5uad5peudknv5q Sent read 5 of the agent's frames sending 0 again
 ```
 

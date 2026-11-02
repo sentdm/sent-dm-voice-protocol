@@ -1,7 +1,7 @@
 asyncapi: 3.1.0
 info:
   title: Sent Voice Agents protocol
-  version: 0.2.0
+  version: 1.0.0
   description: |
     The session an AI agent holds with Sent while it is on a phone call: JSON text frames and binary audio
     frames over one WebSocket, with the subprotocol sent.voice.v1. docs/protocol.md has the rules this document
@@ -12,7 +12,8 @@ info:
     marks a message that does not count towards a resume's received, and the agentConnection channel's
     x-sent-retained-frames is how many of its latest counted frames each side keeps for each session.
 
-    Status: Preview. The protocol may change before 1.0.
+    Status: stable. Within sent.voice.v1 Sent only adds frames, fields and values; docs/protocol.md, Compatibility and
+    versions, says what a release may change.
   license:
     name: Apache-2.0
     url: https://www.apache.org/licenses/LICENSE-2.0

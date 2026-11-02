@@ -1,0 +1,82 @@
+{
+  "description": "Sent refuses one of the agent's frames with error. The connection stays open and the session goes on: the agent neither reconnects nor resumes, and answers the next frame.",
+  "steps": [
+    {
+      "send": {
+        "type": "session.start",
+        "session_id": "$a",
+        "call_id": "call_conformance-a",
+        "agent_id": "agent_conformance",
+        "direction": "inbound",
+        "from": {
+          "kind": "number",
+          "value": "+14155550100"
+        },
+        "to": {
+          "kind": "number",
+          "value": "+14155550199"
+        },
+        "session_type": "text",
+        "started_at": "2026-11-02T12:00:00Z",
+        "resume": {
+          "token": "vsr_Lw7Qe2Np9Cs4Ht6Kv1Mb8Zf3",
+          "window_ms": 15000
+        }
+      }
+    },
+    {
+      "expect": {
+        "type": "agent.say",
+        "session_id": "$a",
+        "text": "Hello from the conformance agent."
+      }
+    },
+    {
+      "send": {
+        "type": "user.said",
+        "session_id": "$a",
+        "text": "echo one"
+      }
+    },
+    {
+      "expect": {
+        "type": "agent.say",
+        "session_id": "$a",
+        "text": "one"
+      }
+    },
+    {
+      "send": {
+        "type": "error",
+        "error": {
+          "code": "frame_not_allowed",
+          "message": "The frame is not allowed here."
+        },
+        "session_id": "$a",
+        "frame_type": "agent.say"
+      }
+    },
+    {
+      "send": {
+        "type": "user.said",
+        "session_id": "$a",
+        "text": "echo two"
+      }
+    },
+    {
+      "expect": {
+        "type": "agent.say",
+        "session_id": "$a",
+        "text": "two"
+      }
+    },
+    {
+      "send": {
+        "type": "session.end",
+        "session_id": "$a",
+        "reason": "caller_hung_up",
+        "duration_ms": 1000
+      }
+    }
+  ]
+}

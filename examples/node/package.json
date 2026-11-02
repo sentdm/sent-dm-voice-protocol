@@ -1,7 +1,7 @@
 {
   "name": "sent-voice-echo-agent",
   "private": true,
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "A dial-in echo agent on the Sent Voice Agents protocol, in TypeScript on Node 22 with ws",
   "license": "Apache-2.0",
   "type": "module",

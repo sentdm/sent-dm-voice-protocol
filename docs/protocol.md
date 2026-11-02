@@ -1,6 +1,6 @@
 # The Sent Voice Agents protocol
 
-Status: **Preview**, version 0.2.0. The protocol may change before 1.0.
+Status: **stable**, version 1.0.0. Within `sent.voice.v1` Sent only adds; see [Compatibility and versions](#compatibility-and-versions).
 
 An agent session is one phone call while one AI agent is on it. Sent and the agent exchange frames over a
 WebSocket with the subprotocol `sent.voice.v1`: JSON text messages, one frame per message, and binary messages
@@ -313,6 +313,7 @@ they follow `fallback`.
 
 Releases of this repository are tags such as `v0.1.0`. The Sent Voice Gateway and every Sent Voice Agents SDK
 pin one, as a Go module, a git submodule or the tag's source archive, and an SDK runs the conformance scenarios of the tag it
-pins with this repository's GitHub Action. `connection.ready` gives the `protocol_version` the gateway speaks. While the protocol is in Preview, a 0.x release can still change frames under `sent.voice.v1`.
-From 1.0, release N.x is `sent.voice.vN`: a change that would break an agent gets a new major release and a new
-subprotocol, and Sent serves both for a deprecation period.
+pins with this repository's GitHub Action. `connection.ready` gives the `protocol_version` the gateway speaks. Release N.x is `sent.voice.vN`: every 1.x
+release keeps the frames of this document and only adds, as the list above says, so an agent built on any 1.x
+works on every later 1.x. A change that would break an agent gets a new major release and a new subprotocol,
+and Sent serves both for a deprecation period. The 0.x releases were the Preview, in which frames could change.
