@@ -10,7 +10,7 @@ the rules in [`asyncapi.yaml`](../asyncapi.yaml).
 In the SDK's CI, use this repository as an action, at the tag of the protocol version the SDK implements:
 
 ```yaml
-- uses: sentdm/sent-dm-voice-protocol@v0.2.0
+- uses: sentdm/sent-dm-voice-protocol@v1.0.0
   with:
     agent: node examples/conformance-agent.js
 ```
@@ -58,6 +58,7 @@ and does exactly this:
 | The loss of its connection                 | A new connection, and `session.resume` there for each lost session with a token                                                                                    |
 | `session.resumed`                          | The frames for the session Sent did not read, again, or `tool.call` `hangup` when it no longer has them. Then it serves the session there, on the new audio stream |
 | `error` answering a `session.resume`       | Nothing. It forgets the session                                                                                                                                    |
+| `error` about any other frame              | Nothing. The connection stays open and the session goes on                                                                                                         |
 | Anything else, or a field it does not know | Nothing                                                                                                                                                            |
 
 A command is the text up to the first space, and `<word>` is the text from there to the next space.
@@ -94,6 +95,5 @@ frame such as `pong`. A field an expected frame leaves out counts as its schema 
 the old one fails the step waiting for it. After the last step the harness pings and waits for the pong, and any
 frame the agent sent that no step expected fails the scenario.
 
-Not covered yet: Sent connecting to the agent's `websocket_url` with a signed handshake, the agent's handling of
-`error` frames, including a refused `session.resume`, and an agent closing with 1000 when it stops serving its
-calls. Sent's own side of resuming, the window, the replay and the checks on a token, is the gateway's to test.
+Not covered: Sent connecting to the agent's `websocket_url` with a signed handshake, and an agent closing with
+1000 when it stops serving its calls. Sent's own side of resuming, the window, the replay and the checks on a token, is the gateway's to test.

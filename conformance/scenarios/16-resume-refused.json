@@ -1,0 +1,94 @@
+{
+  "description": "After a loss, Sent refuses the agent's session.resume. The agent forgets the session, sends nothing more for it, and serves a new session on the same connection.",
+  "steps": [
+    {
+      "send": {
+        "type": "session.start",
+        "session_id": "$a",
+        "call_id": "call_conformance-a",
+        "agent_id": "agent_conformance",
+        "direction": "inbound",
+        "from": {
+          "kind": "number",
+          "value": "+14155550100"
+        },
+        "to": {
+          "kind": "number",
+          "value": "+14155550199"
+        },
+        "session_type": "text",
+        "started_at": "2026-11-02T12:00:00Z",
+        "resume": {
+          "token": "vsr_Rk8Vn3Yt6Bq1Zc5Hm9Xw2Pd4",
+          "window_ms": 15000
+        }
+      }
+    },
+    {
+      "expect": {
+        "type": "agent.say",
+        "session_id": "$a",
+        "text": "Hello from the conformance agent."
+      }
+    },
+    {
+      "drop": true
+    },
+    {
+      "expect_reconnect": true
+    },
+    {
+      "expect": {
+        "type": "session.resume",
+        "session_id": "$a",
+        "token": "vsr_Rk8Vn3Yt6Bq1Zc5Hm9Xw2Pd4",
+        "received": 0
+      }
+    },
+    {
+      "send": {
+        "type": "error",
+        "error": {
+          "code": "resume_failed",
+          "message": "The session can no longer be resumed."
+        },
+        "session_id": "$a",
+        "frame_type": "session.resume"
+      }
+    },
+    {
+      "send": {
+        "type": "session.start",
+        "session_id": "$b",
+        "call_id": "call_conformance-b",
+        "agent_id": "agent_conformance",
+        "direction": "inbound",
+        "from": {
+          "kind": "number",
+          "value": "+14155550100"
+        },
+        "to": {
+          "kind": "number",
+          "value": "+14155550199"
+        },
+        "session_type": "text",
+        "started_at": "2026-11-02T12:00:00Z"
+      }
+    },
+    {
+      "expect": {
+        "type": "agent.say",
+        "session_id": "$b",
+        "text": "Hello from the conformance agent."
+      }
+    },
+    {
+      "send": {
+        "type": "session.end",
+        "session_id": "$b",
+        "reason": "caller_hung_up",
+        "duration_ms": 1000
+      }
+    }
+  ]
+}

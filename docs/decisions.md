@@ -1,7 +1,7 @@
 # Decisions
 
 Why [the protocol](protocol.md) is shaped the way it is, where the Sent Voice products spec left a choice open.
-Each can change while the protocol is in Preview.
+Each held through 1.0; within `sent.voice.v1` a later release may add to them, not change them.
 
 ## Two ways to connect, one set of frames
 
@@ -65,7 +65,7 @@ An agent's connection carries up to `max_sessions` calls, and before 0.2.0 losin
 `agent_unreachable`. Connections are lost for reasons that have nothing to do with the calls: a gateway rollout, a
 network fault, the agent's own deploy, and a load balancer closing long-lived sockets. The provider's side of a
 call cannot reconnect, but the agent's side can, so [the protocol lets it](protocol.md#resuming-sessions). The
-protocol is in Preview and no SDK exists yet, so this is the cheapest time to add it.
+protocol was in Preview and no SDK existed yet, so 0.2.0 was the cheapest time to add it.
 
 - **A token per session.** The key alone would let any connection holding it take a session another process is
   serving, and a token per connection would move all of its sessions or none, where each should move on its own.
@@ -82,9 +82,9 @@ protocol is in Preview and no SDK exists yet, so this is the cheapest time to ad
 Rejected: keeping the connection alive on the gateway's side instead, with an L4 load balancer for agents, longer
 drains or pod affinity. None of them survives a network fault, the agent's own deploy or a pod that is gone.
 
-## Not in 0.2.0
+## Not in 1.0
 
-Candidates for a later version, left out until an agent needs them:
+Candidates for a later 1.x release, each an addition under `sent.voice.v1`, left out until an agent needs them:
 
 - the caller's keypresses (DTMF) as a frame
 - telling a text agent how much of its speech was played before an interruption
@@ -93,13 +93,12 @@ Candidates for a later version, left out until an agent needs them:
 - tools beyond the four built-in ones, such as sending an SMS
 - the endpoint that mints session tokens
 
-## Open questions
+## Counting stays implicit
 
-For the owners to settle while the protocol is in Preview:
-
-- **An optional `seq` on the counted frames, instead of implicit counting.** Implicit counting needs both sides to
-  classify every frame the same way, and two cases do not. An agent frame Sent refuses with `invalid_frame`,
-  because it is not JSON or is over 64 KB, cannot be tied to a session, so Sent does not count it while the agent
-  does, and on a resume the agent sends later frames twice. A session-scoped `error` answering a counted
-  `tool.call` is neither counted nor replayed, so if it is lost the agent waits forever for an answer. A `seq`
-  would make a desync detectable, but would not by itself fix the lost `error`.
+Settled for 1.0. Both sides classify frames by the rules `asyncapi.yaml` carries (`x-sent-counted`), and a
+session-scoped `error` stays uncounted and is never replayed. Two cases are known and accepted. An agent frame
+Sent refuses with `invalid_frame`, because it is not JSON or is over 64 KB, cannot be tied to a session, so the
+agent counts a frame Sent did not, and after a resume it sends one frame more than Sent needs. A session-scoped
+`error` answering a counted `tool.call` is not replayed, so if it is lost the call stays unanswered until the
+session ends, which is when the SDKs fail a waiting tool call. An optional `seq` on counted frames may be added
+in a 1.x release, as an addition, to make a desync visible; it would not change what counts.
